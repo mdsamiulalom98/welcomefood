@@ -1,12 +1,3 @@
-@php
-    $subtotal = Cart::instance('shopping')->subtotal();
-    $subtotal = str_replace(',', '', $subtotal);
-    $subtotal = str_replace('.00', '', $subtotal);
-    $shipping = Session::get('shipping') ? Session::get('shipping') : 0;
-    $coupon = Session::get('coupon_amount') ? Session::get('coupon_amount') : 0;
-    $discount = Session::get('discount') ? Session::get('discount') : 0;
-@endphp
-
 <div class="order-summery">
     <div class="order-summery-cart">
         @foreach (Cart::instance('shopping')->content() as $item)
@@ -46,8 +37,8 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
-            </div>
         @endforeach
     </div>
 </div>

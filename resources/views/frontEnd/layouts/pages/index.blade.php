@@ -37,9 +37,9 @@
             <div class="row">
                 <div class="col-sm-9">
                     <div class="best-food-section section-padding">
-                        <div class="container-fluid">
-                            <div class="row">
-                                <div class="col-sm-12">
+                        <div class="">
+                            <div class="">
+                                <div class="">
                                     <div class="section-title">
                                         <h3><img src="{{ asset('public/frontEnd/') }}/images/titleIcon.svg" alt="user-img"
                                                 class="rounded-circle avatar-md" />
@@ -63,9 +63,9 @@
                         </div>
                     </div>
                     <div class="menu-tab-section section-padding">
-                        <div class="container-fluid">
-                            <div class="row">
-                                <div class="col-sm-12">
+                        <div class="">
+                            <div class="">
+                                <div class="">
                                     <div class="section-title">
                                         <h3><img src="{{ asset('public/frontEnd/') }}/images/titleIcon.svg" alt="user-img"
                                                 class="rounded-circle avatar-md" />
@@ -117,52 +117,7 @@
                                                         <div class="tab-food">
                                                             <div class="tab-food-inner">
                                                                 @foreach ($foods as $key => $value)
-                                                                    <div class="menu-food">
-                                                                        <div class="menu-img">
-                                                                            <img src="{{ asset($value->image ? $value->image->image : '') }}"
-                                                                                alt="{{ $value->name }}">
-                                                                            @if ($value->variables->count() > 1)
-                                                                                <a class="quick_view item_plus"
-                                                                                    data-id="{{ $value->id }}"
-                                                                                    data-bs-toggle="modal"
-                                                                                    data-bs-target="#quickview_modal"><i
-                                                                                        class="fa-solid fa-plus"></i> </a>
-                                                                            @else
-                                                                                <a data-id="{{ $value->id }}"
-                                                                                    class="item_plus cart_store"><i
-                                                                                        class="fa-solid fa-plus"></i></a>
-                                                                            @endif
-                                                                        </div>
-                                                                        <div class="menu-info">
-                                                                            <a class="quick_view"
-                                                                                data-id="{{ $value->id }}"
-                                                                                data-bs-toggle="modal"
-                                                                                data-bs-target="#quickview_modal">{{ $value->name }}</a>
-                                                                            <button class="cart_store order-now-button" data-redirect="order_now" data-id="{{ $value->id }}">Order Now</button>
-                                                                        </div>
-                                                                        <div class="menu-price">
-                                                                            @if ($value->variables->count() > 1)
-                                                                                @foreach ($value->variables as $variable)
-                                                                                    <strong>
-                                                                                        @if ($variable->old_price)
-                                                                                            <del>Tk {{ $variable->old_price }}</del>
-                                                                                        @endif
-                                                                                        Tk {{ $variable->new_price }}
-                                                                                        @if (!$loop->last)
-                                                                                            <span>:</span>
-                                                                                        @endif
-                                                                                    </strong>
-                                                                                @endforeach
-                                                                            @else
-                                                                                <strong>
-                                                                                    @if ($value->old_price)
-                                                                                        <del>Tk {{ $value->old_price }}</del>
-                                                                                    @endif
-                                                                                    Tk {{ $value->new_price }}
-                                                                                </strong>
-                                                                            @endif
-                                                                        </div>
-                                                                    </div>
+                                                                    @include('frontEnd.layouts.partials.mini_product')
                                                                 @endforeach
                                                             </div>
                                                         </div>
@@ -191,9 +146,12 @@
             <div class="row">
                 <div class="col-sm-12">
                     <div class="home-about">
-                        <h1>About Us</h1>
-                        <h2> <img src="{{ asset('public/frontEnd/images/shape.png') }}"> <span>Since 1970</span> <img
-                                src="{{ asset('public/frontEnd/images/shape.png') }}"></h2>
+                        <h1>How to Order</h1>
+                        <h2>
+                            <img src="{{ asset('public/frontEnd/images/shape.png') }}">
+                            <span>Watch this video to learn how to place an order.</span>
+                            <img src="{{ asset('public/frontEnd/images/shape.png') }}">
+                        </h2>
                         <div class="about-video">
                             <a youtubeid="FcEVbVrNIyg" class="youtube-link">
                                 <span class="play_btn"><i class="fa-solid fa-play"></i></span>

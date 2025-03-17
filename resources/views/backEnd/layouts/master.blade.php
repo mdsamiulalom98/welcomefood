@@ -264,6 +264,7 @@
                             </div>
                         </li>
                         <!-- nav items -->
+                        @role('Admin')
                         <li>
                             <a href="#siebar-food" data-bs-toggle="collapse">
                                 <i data-feather="database"></i>
@@ -299,8 +300,9 @@
                                 </ul>
                             </div>
                         </li>
+                        @endrole
                         <!-- nav items end -->
-
+                        @role('Admin')
                         <li>
                             <a href="#sidebar-users" data-bs-toggle="collapse">
                                 <i data-feather="user"></i>
@@ -324,8 +326,9 @@
                                 </ul>
                             </div>
                         </li>
+                        @endrole
                         <!-- nav items -->
-
+                        @role('Admin')
                         <li>
                             <a href="#sidebar-customers" data-bs-toggle="collapse">
                                 <i data-feather="users"></i>
@@ -341,7 +344,9 @@
                                 </ul>
                             </div>
                         </li>
+                        @endrole
                         <!-- nav items -->
+                        @role('Admin')
                         <li>
                             <a href="#siebar-sitesetting" data-bs-toggle="collapse">
                                 <i data-feather="settings"></i>
@@ -370,14 +375,16 @@
                                         <a href="{{ route('orderstatus.index') }}"><i data-feather="minus"></i>
                                             Order Status</a>
                                     </li>
-                                    
+
                                     <li>
                                         <a href="{{ route('pages.index') }}"><i data-feather="minus"></i> Create Page</a>
                                     </li>
                                 </ul>
                             </div>
                         </li>
+                        @endrole
                         <!-- nav items end -->
+                        @role('Admin')
                         <li>
                             <a href="#sidebar-api-integration" data-bs-toggle="collapse">
                                 <i data-feather="paperclip"></i>
@@ -397,7 +404,9 @@
                                 </ul>
                             </div>
                         </li>
+                        @endrole
                         <!-- nav items end -->
+                        @role('Admin')
                         <li>
                             <a href="#sidebar-pixel-gtm" data-bs-toggle="collapse">
                                 <i data-feather="share-2"></i>
@@ -424,7 +433,9 @@
                                 </ul>
                             </div>
                         </li>
+                        @endrole
                         <!-- nav items end -->
+                        @role('Admin')
                         <li>
                             <a href="#siebar-banner" data-bs-toggle="collapse">
                                 <i data-feather="image"></i>
@@ -444,8 +455,10 @@
                                 </ul>
                             </div>
                         </li>
+                        @endrole
                         <!-- nav items end -->
                         <!-- expense-start -->
+                        @role('Admin')
                         <li>
                             <a href="#siebar-expense" data-bs-toggle="collapse">
                                 <i data-feather="database"></i>
@@ -466,7 +479,9 @@
                                 </ul>
                             </div>
                         </li>
+                        @endrole
                         <!-- expense-end -->
+                        @role('Admin')
                         <li>
                             <a href="#sitebar-report" data-bs-toggle="collapse">
                                 <i data-feather="pie-chart"></i>
@@ -494,13 +509,16 @@
                                 </ul>
                             </div>
                         </li>
+                        @endrole
                         <!-- nav items end -->
+                        @role('Admin')
                         <li>
                             <a href="{{ url('cc') }}">
                                 <i data-feather="tool"></i>
                                 <span> Cache Clear </span>
                             </a>
                         </li>
+                        @endrole
                     </ul>
                 </div>
                 <!-- End Sidebar -->

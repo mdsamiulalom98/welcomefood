@@ -46,14 +46,14 @@ class ShoppingController extends Controller
             ]);
         }
 
-        if ($request->redirect == 'order_now') {
-            return response()->json([
-                'redirect' => 'order_now',
-                'response' => $response,
-            ]);
-        } else {
+        // if ($request->redirect == 'order_now') {
+        //     return response()->json([
+        //         'redirect' => 'order_now',
+        //         'response' => $response,
+        //     ]);
+        // } else {
             return response()->json($response);
-        }
+        // }
     }
 
     public function cart_increment(Request $request)
@@ -88,6 +88,11 @@ class ShoppingController extends Controller
     {
         $data = Cart::instance('shopping')->content();
         return view('frontEnd.layouts.partials.mini_cart', compact('data'));
+    }
+    public function cart_data(Request $request)
+    {
+        $data = Cart::instance('shopping')->content();
+        return view('frontEnd.layouts.partials.cart_data', compact('data'));
     }
     public function cart_summary(Request $request)
     {

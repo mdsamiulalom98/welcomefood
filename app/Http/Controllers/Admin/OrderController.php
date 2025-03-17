@@ -39,13 +39,20 @@ class OrderController extends Controller
         $this->middleware('permission:order-process', ['only' => ['process', 'order_process']]);
         $this->middleware('permission:order-process', ['only' => ['process']]);
     }
-    public function index($slug, Request $request){
+    public function index($slug, Request $request)
+    {
         if ($slug == 'pos') {
             $order_status = (object) [
                 'name' => 'POS Order',
-                'orders_count' => Order::where('order_type','pos')->count(),
+                'orders_count' => Order::where('order_type', 'pos')->count(),
             ];
-            $show_data = Order::where('order_type','pos')->orderBy('id','DESC')->with('shipping', 'status');
+            $show_data = Order::where('order_type', 'pos')->orderBy('id', 'DESC')->with('shipping', 'status');
+            if (Auth::user()->hasRole('Waiter')) {
+                $show_data = $show_data->where('waiter_id', Auth::user()->id);
+            }
+            if (Auth::user()->hasRole('Chef')) {
+                $show_data = $show_data->where('chef_id', Auth::user()->id);
+            }
             if ($request->keyword) {
                 $show_data = $show_data->where(function ($query) use ($request) {
                     $query->orWhere('invoice_id', 'LIKE', '%' . $request->keyword . '%')
@@ -57,7 +64,15 @@ class OrderController extends Controller
             $show_data = $show_data->paginate(50);
         } else {
             $order_status = OrderStatus::where('slug', $slug)->withCount('orders')->first();
-            $show_data = Order::where(['order_status' => $order_status->id])->latest()->with('shipping', 'status')->paginate(50);
+            $show_data = Order::where(['order_status' => $order_status->id])->latest()->with('shipping', 'status');
+            if (Auth::user()->hasRole('Waiter')) {
+                $show_data = $show_data->where('waiter_id', Auth::user()->id);
+            }
+            if (Auth::user()->hasRole('Chef')) {
+                $show_data = $show_data->where('chef_id', Auth::user()->id);
+            }
+
+            $show_data = $show_data->paginate(50);
         }
         $users = User::get();
         return view('backEnd.order.index', compact('show_data', 'order_status', 'users'));
@@ -66,16 +81,18 @@ class OrderController extends Controller
     public function invoice($invoice_id)
     {
         $order = Order::where(['invoice_id' => $invoice_id])->with('orderdetails', 'payment', 'shipping', 'customer')->firstOrFail();
-        return view('backEnd.order.invoice', compact('order'));
+        return view('backEnd.order.slip', compact('order'));
     }
 
-    public function process($invoice_id){
+    public function process($invoice_id)
+    {
         $data = Order::where(['invoice_id' => $invoice_id])->select('id', 'invoice_id', 'order_status', 'order_type')->with('orderdetails', 'shipping')->first();
-        $deliveryzones = DeliveryZone::where('status',1)->get();
+        $deliveryzones = DeliveryZone::where('status', 1)->get();
         return view('backEnd.order.process', compact('data', 'deliveryzones'));
     }
 
-    public function order_process(Request $request){
+    public function order_process(Request $request)
+    {
 
         $link = OrderStatus::find($request->status)->slug;
         $order = Order::with('payment')->find($request->id);
@@ -110,7 +127,8 @@ class OrderController extends Controller
         return response()->json(['status' => 'success', 'message' => 'Order user id assign']);
     }
 
-    public function order_status(Request $request){
+    public function order_status(Request $request)
+    {
         $orders = Order::whereIn('id', $request->input('order_ids'))->update(['order_status' => $request->order_status]);
         return response()->json(['status' => 'success', 'message' => 'Order status change successfully']);
     }
@@ -132,16 +150,19 @@ class OrderController extends Controller
         $view = view('backEnd.order.print', ['orders' => $orders])->render();
         return response()->json(['status' => 'success', 'view' => $view]);
     }
-    public function order_create(){
+    public function order_create()
+    {
         $foods = Food::select('id', 'name', 'new_price', 'old_price', 'status')->get();
         $cartinfo = Cart::instance('sale')->content();
-        $deliveryzones = DeliveryZone::where('status',1)->get();
+        $deliveryzones = DeliveryZone::where('status', 1)->get();
+        $chefs = User::role('chef')->get();
+        // return $chefs;
         Session::put('pos_shipping');
         Session::forget('pos_discount');
         Session::forget('product_discount');
         Session::forget('cpaid');
         Session::forget('cdue');
-        return view('backEnd.order.create', compact('foods', 'cartinfo', 'deliveryzones'));
+        return view('backEnd.order.create', compact('foods', 'cartinfo', 'deliveryzones', 'chefs'));
     }
 
     public function order_store(Request $request)
@@ -180,58 +201,64 @@ class OrderController extends Controller
         $subtotal = str_replace('.00', '', $subtotal);
         $discount = Session::get('pos_discount') + Session::get('product_discount');
 
-        $deliveryzone = DeliveryZone::where('status',1)->where('id', $area)->first();
+        $deliveryzone = DeliveryZone::where('status', 1)->where('id', $area)->first();
 
         $exits_customer = Customer::where('phone', $phone)->select('phone', 'id')->first();
         if ($exits_customer) {
             $customer_id = $exits_customer->id;
         } else {
-            $password           = rand(111111, 999999);
-            $store              = new Customer();
-            $store->name        = $name;
-            $store->phone       = $phone;
-            $store->password    = bcrypt($password);
-            $store->verify      = 1;
-            $store->status      = 'active';
+            $password = rand(111111, 999999);
+            $store = new Customer();
+            $store->name = $name;
+            $store->phone = $phone;
+            $store->password = bcrypt($password);
+            $store->verify = 1;
+            $store->status = 'active';
             $store->save();
-            $customer_id        = $store->id;
+            $customer_id = $store->id;
         }
 
         // order data save
-        $order                  = new Order();
-        $order->invoice_id      = rand(11111, 99999);
-        $order->amount          = ($subtotal + $deliveryzone->amount) - $discount;
-        $order->discount        = $discount ? $discount : 0;
+        $order = new Order();
+        $order->invoice_id = rand(11111, 99999);
+        $order->amount = ($subtotal + $deliveryzone->amount) - $discount;
+        $order->discount = $discount ? $discount : 0;
         $order->shipping_charge = $deliveryzone->amount;
-        $order->customer_id     = $customer_id;
-        $order->order_status    = $deliveryzone->only_pos == 1 ? '3' : '1';
-        $order->user_id         = Auth::user()->id;
-        $order->order_type      = $deliveryzone->only_pos == 1 ? 'pos' : 'website';
+        $order->customer_id = $customer_id;
+        $order->order_status = $deliveryzone->only_pos == 1 ? '3' : '1';
+        $order->user_id = Auth::user()->id;
+        $order->order_type = $deliveryzone->only_pos == 1 ? 'pos' : 'website';
         $order->save();
 
-        if($order->order_type == 'pos'){
+        if ($order->order_type == 'pos') {
             $slug = 'pos';
-        }else{
+        } else {
             $slug = OrderStatus::find($order->order_status)->slug;
         }
-        
+
+        if (Auth::user()->hasRole('Waiter')) {
+            $order->waiter_id = Auth::user()->id;
+            $order->chef_id = $request->chef_id;
+            $order->save();
+        }
+
         // shipping data save
-        $shipping               = new Shipping();
-        $shipping->order_id     = $order->id;
-        $shipping->customer_id  = $customer_id;
-        $shipping->name         = $name;
-        $shipping->phone        = $phone;
-        $shipping->address      = $address;
-        $shipping->area         = $deliveryzone->name;
+        $shipping = new Shipping();
+        $shipping->order_id = $order->id;
+        $shipping->customer_id = $customer_id;
+        $shipping->name = $name;
+        $shipping->phone = $phone;
+        $shipping->address = $address;
+        $shipping->area = $deliveryzone->name;
         $shipping->save();
 
         // payment data save
-        $payment                    = new Payment();
-        $payment->order_id          = $order->id;
-        $payment->customer_id       = $customer_id;
-        $payment->payment_method    = 'Cash On Delivery';
-        $payment->amount            = $order->amount;
-        $payment->payment_status    = 'paid';
+        $payment = new Payment();
+        $payment->order_id = $order->id;
+        $payment->customer_id = $customer_id;
+        $payment->payment_method = 'Cash On Delivery';
+        $payment->amount = $order->amount;
+        $payment->payment_status = 'paid';
         $payment->save();
 
         // order details data save
@@ -256,9 +283,10 @@ class OrderController extends Controller
         Session::forget('cpaid');
         Session::forget('cdue');
         Toastr::success('Thanks, Your order place successfully', 'Success!');
-        return redirect()->route('admin.orders',$slug);
+        return redirect()->route('admin.orders', $slug);
     }
-    public function search(Request $request){
+    public function search(Request $request)
+    {
         $qty = 1;
         $keyword = $request->keyword;
         $foods = Food::select('id', 'name', 'slug', 'new_price', 'old_price')->with('image', 'variables');
@@ -270,12 +298,12 @@ class OrderController extends Controller
             $foods = [];
         }
         return view('backEnd.order.search', compact('foods'));
-        
+
     }
     public function cart_add(Request $request)
     {
         $food = Food::select('id', 'name', 'slug', 'new_price', 'old_price', 'cost_price')->where(['id' => $request->id])->first();
-        $var_product = FoodVariable::where(['food_id' => $request->id,'size' => $request->size])->first();
+        $var_product = FoodVariable::where(['food_id' => $request->id, 'size' => $request->size])->first();
         $cost_price = $var_product ? $var_product->cost_price : 0;
         $old_price = $var_product ? $var_product->old_price : 0;
         $new_price = $var_product ? $var_product->new_price : 0;
@@ -355,7 +383,8 @@ class OrderController extends Controller
         ]);
         return response()->json($cartinfo);
     }
-    public function cart_shipping(Request $request){
+    public function cart_shipping(Request $request)
+    {
         $shipping = DeliveryZone::where(['status' => 1, 'id' => $request->id])->first()->amount;
         Session::put('pos_shipping', $shipping);
         return response()->json($shipping);
@@ -370,12 +399,14 @@ class OrderController extends Controller
         return redirect()->back();
     }
 
-    public function order_edit($invoice_id){
+    public function order_edit($invoice_id)
+    {
         $data = Order::where(['invoice_id' => $invoice_id])->select('id', 'invoice_id', 'order_status', 'order_type')->with('orderdetails', 'shipping')->first();
-        $deliveryzones = DeliveryZone::where('status',1)->get();
+        $deliveryzones = DeliveryZone::where('status', 1)->get();
         $order = Order::where('invoice_id', $invoice_id)->first();
         $cartinfo = Cart::instance('sale')->destroy();
         $shippinginfo = Shipping::where('order_id', $order->id)->first();
+        $chefs = User::role('chef')->get();
         Session::put('product_discount', $order->discount);
         Session::put('pos_shipping', $order->shipping_charge);
         $orderdetails = OrderDetails::where('order_id', $order->id)->get();
@@ -396,7 +427,7 @@ class OrderController extends Controller
             ]);
         }
         $cartinfo = Cart::instance('sale')->content();
-        return view('backEnd.order.edit', compact( 'cartinfo', 'deliveryzones', 'shippinginfo', 'order', 'data'));
+        return view('backEnd.order.edit', compact('cartinfo', 'deliveryzones', 'shippinginfo', 'order', 'data', 'chefs'));
     }
 
     public function order_update(Request $request)
@@ -411,11 +442,17 @@ class OrderController extends Controller
             return redirect()->back();
         }
 
+        if(Auth::user()->hasRole('Waiter')){
+            $order = Order::where('id', $request->order_id)->first();
+            $order->chef_id = $request->chef_id;
+            $order->waiter_id = Auth::user()->id;
+            $order->save();
+        }
         $subtotal = Cart::instance('sale')->subtotal();
         $subtotal = str_replace(',', '', $subtotal);
         $subtotal = str_replace('.00', '', $subtotal);
         $discount = Session::get('pos_discount') + Session::get('product_discount');
-        $shipping_area = DeliveryZone::where('status',1)->where('id', $request->area)->first();
+        $shipping_area = DeliveryZone::where('status', 1)->where('id', $request->area)->first();
         $exits_customer = Customer::where('phone', $request->phone)->select('phone', 'id')->first();
         if ($exits_customer) {
             $customer_id = $exits_customer->id;
@@ -440,7 +477,6 @@ class OrderController extends Controller
         $order->customer_id = $customer_id;
         $order->note = $request->note;
         $order->save();
-
 
         // shipping data save
         $shipping = Shipping::where('order_id', $request->order_id)->first();

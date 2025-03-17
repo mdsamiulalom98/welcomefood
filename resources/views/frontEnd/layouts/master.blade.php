@@ -20,8 +20,8 @@
     <link rel="stylesheet" href="{{ asset('public/frontEnd/css/grt-youtube-popup.css') }}" />
     <!-- toastr css -->
     <link rel="stylesheet" href="{{ asset('public/backEnd/') }}/assets/css/toastr.min.css" />
-    <link rel="stylesheet" href="{{ asset('public/frontEnd/css/style.css?v=1.0.2') }}" />
-    <link rel="stylesheet" href="{{ asset('public/frontEnd/css/responsive.css?v=1.0.2') }}" />
+    <link rel="stylesheet" href="{{ asset('public/frontEnd/css/style.css?v=1.0.6') }}" />
+    <link rel="stylesheet" href="{{ asset('public/frontEnd/css/responsive.css?v=1.0.6') }}" />
     <script src="{{ asset('public/frontEnd/js/jquery-3.7.1.min.js') }}"></script>
     @include('frontEnd.layouts.partials.header_part')
 </head>
@@ -33,9 +33,11 @@
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="coupon-code">
-                            <p>Get {{ $coupon->amount }} {{ $coupon->type == 1 ? '%' : 'Tk' }} Discount use the
-                                coupon code <span id="couponCode">{{ $coupon->coupon_code }}</span>
-                                <button onclick="copyCouponCode()"> <i class="fas fa-copy"></i>
+                            <p>Get {{ $coupon->amount }} {{ $coupon->type == 1 ? '%' : 'Tk' }} Discount use the coupon
+                                code
+                                <span id="couponCode">{{ $coupon->coupon_code }}</span>
+                                <button onclick="copyCouponCode()">
+                                    <i class="fas fa-copy"></i>
                                 </button>
                             </p>
                         </div>
@@ -92,9 +94,10 @@
                 <a href="{{ route('home') }}"> <img src="{{ asset($generalsetting->dark_logo) }}"
                         alt="" /></a>
             </div>
-            <div class="search-mobile"><a class="search_toggle"><i class="fas fa-search"></i></a></div>
+            {{-- <div class="search-mobile"><a class="search_toggle"><i class="fas fa-search"></i></a></div> --}}
             <div class="mobile-cart">
-                <a class="cart-toggle">
+
+                <a @if (!Request::is('customer/checkout')) class="cart-toggle" @endif>
                     <i class="fa-solid fa-cart-shopping"></i>
                     <span class="cart_count">{{ Cart::instance('shopping')->count() }}</span>
                 </a>
@@ -102,9 +105,11 @@
         </div>
         <div class="mobile-search">
             <form action="{{ route('search') }}">
-                <input type="text" placeholder="Search Product..." name="keyword" />
+                <input type="text" placeholder="Search Product..." class="search_click search_keyword"
+                    name="keyword" />
                 <button><i class="fa-solid fa-search"></i></button>
             </form>
+            <div class="search_result"></div>
         </div>
         <!-- mobile header end -->
 
@@ -132,7 +137,8 @@
                                         <li>Follow Us :</li>
                                         @foreach ($socialicons as $key => $sicon)
                                             <li><a href="{{ $sicon->link }}"><i
-                                                        class="{{ $sicon->icon }}"></i></a></li>
+                                                        class="{{ $sicon->icon }}"></i></a>
+                                            </li>
                                         @endforeach
                                     </ul>
                                 </div>
@@ -187,7 +193,7 @@
                                                 </a>
                                             </li>
                                             <li>
-                                                <a class="cart_icon cart-toggle">
+                                                <a class="cart_icon " href="{{ route('customer.checkout') }}">
                                                     <i class="fa-solid fa-cart-shopping"></i>
                                                     <span
                                                         class="cart_count">{{ Cart::instance('shopping')->count() }}</span>
@@ -212,7 +218,8 @@
                                     </div>
                                     <div class="main-search">
                                         <form action="{{ route('search') }}">
-                                            <input type="text" placeholder="Search Product..." class="search_click search_keyword" name="keyword" />
+                                            <input type="text" placeholder="Search Product..."
+                                                class="search_click search_keyword" name="keyword" />
                                             <button><i class="fa-solid fa-search"></i></button>
                                         </form>
                                         <div class="search_result"></div>
@@ -227,8 +234,6 @@
                 </div>
             </div>
             <!-- logo area end -->
-
-
         </div>
         <!-- main-header end -->
     </header>
@@ -245,7 +250,9 @@
                             <a href="{{ route('home') }}">
                                 <img src="{{ asset($generalsetting->dark_logo) }}" alt="" />
                             </a>
-                            <p>{{ $contact->address }}</p>
+                            <p><i class="fa fa-location-dot"></i> {{ $contact->address }}</p>
+                            <p><i class="fa fa-phone"></i> {{ $contact->phone }}</p>
+                            <p><i class="fa fa-envelope"></i> {{ $contact->email }}</p>
                         </div>
                         <div class="footer-menu">
                             <ul class="social_link">
@@ -307,8 +314,9 @@
     </footer>
     <!--=====-->
     <div class="fixed_whats">
-        <a href="https://api.whatsapp.com/send?phone={{ $contact->whatsapp }}" target="_blank"><i
-                class="fa-brands fa-whatsapp"></i></a>
+        <a href="https://api.whatsapp.com/send?phone={{ $contact->whatsapp }}" target="_blank">
+            <i class="fa-brands fa-whatsapp"></i>
+        </a>
     </div>
 
     <div class="scrolltop" style="">
@@ -331,11 +339,28 @@
         <!-- task all modal end -->
     </form>
 
+    @if (!Request::is('customer/checkout') && !Request::is('cart'))
+        <div class="cart-toggle-btn cart-toggle no-print">
+            <button type="button">
+                <div class="mobile-cart-toggle">
+                    <div class="mobile-cart-toggle-info">
+                        @include('frontEnd.layouts.partials.cart_data')
+                    </div>
+                    <div class="view-cart">
+                        <span>View Cart</span>
+                        <i class="fa fa-chevron-right"></i>
+                    </div>
+                </div>
+            </button>
+        </div>
+    @endif
+
     <!-- cart sidebar -->
     {{-- <div class="mini-cart-wrapper">
         @include('frontEnd.layouts.partials.mini_cart')
     </div> --}}
     <!-- cart sidebar -->
+    <div id="page-overlay" style="display: none;"></div>
 
     <script src="{{ asset('public/frontEnd/js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('public/frontEnd/js/owl.carousel.min.js') }}"></script>
@@ -349,7 +374,8 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     <script src="{{ asset('public/backEnd/') }}/assets/js/toastr.min.js"></script>
-    {!! Toastr::message() !!} @stack('script')
+    {!! Toastr::message() !!}
+    @stack('script')
     <script>
         $(document).on("click", ".quick_view", function(e) {
             e.preventDefault();
@@ -408,7 +434,8 @@
 
     <!-- cart js start -->
     <script>
-        $(".cart_store").on("click", function() {
+        $(document).on("click", ".cart_store", function(e) {
+            e.preventDefault();
             var id = $(this).data("id");
             var qty = $(this).parent().find("input").val();
             var redirect = $(this).data("redirect");
@@ -427,6 +454,7 @@
                             cart_count();
                             mini_cart();
                             cart_summary();
+                            cart_data();
                         }
                         if (response.redirect == 'order_now') {
                             window.location.href = "{{ route('customer.checkout') }}";
@@ -436,7 +464,8 @@
             }
         });
 
-        $(".cart_remove").on("click", function() {
+        $(document).on("click", ".cart_remove", function(e) {
+            e.preventDefault();
             var id = $(this).data("id");
             if (id) {
                 $.ajax({
@@ -450,13 +479,15 @@
                             cart_count();
                             mini_cart();
                             cart_summary();
+                            cart_data();
                         }
                     },
                 });
             }
         });
 
-        $(".cart_increment").on("click", function() {
+        $(document).on("click", ".cart_increment", function(e) {
+            e.preventDefault();
             var id = $(this).data("id");
             if (id) {
                 $.ajax({
@@ -470,13 +501,15 @@
                             cart_count();
                             mini_cart();
                             cart_summary();
+                            cart_data();
                         }
                     },
                 });
             }
         });
 
-        $(".cart_decrement").on("click", function() {
+        $(document).on("click", ".cart_decrement", function(e) {
+            e.preventDefault();
             var id = $(this).data("id");
             if (id) {
                 $.ajax({
@@ -490,6 +523,7 @@
                             cart_count();
                             mini_cart();
                             cart_summary();
+                            cart_data();
                         }
                     },
                 });
@@ -531,6 +565,17 @@
                 },
             });
         }
+
+        function cart_data() {
+            $.ajax({
+                type: "GET",
+                url: "{{ route('cart.data') }}",
+                dataType: "html",
+                success: function(data) {
+                    $(".mobile-cart-toggle-info").html(data);
+                },
+            });
+        }
         $(".wishlist_store").on("click", function() {
             var id = $(this).data("id");
             if (id) {
@@ -562,6 +607,12 @@
             $(".mobile-menu").addClass("active");
         });
 
+        $("#page-overlay").on("click", function() {
+            $(this).hide();
+            $(".mobile-menu").removeClass("active");
+            $(".mini-cart-wrapper").removeClass("active");
+        });
+
         $(".mobile-menu-close").on("click", function() {
             $("#page-overlay").hide();
             $(".mobile-menu").removeClass("active");
@@ -569,6 +620,7 @@
 
         $(".cart-toggle").on("click", function() {
             $(".mini-cart-wrapper").addClass("active");
+            $("#page-overlay").show();
         });
 
         $(".quick_view").on("click", function() {
@@ -577,6 +629,7 @@
 
         $(document).on('click', '.mini-close-button', function(e) {
             $(".mini-cart-wrapper").removeClass("active");
+            $("#page-overlay").hide();
         });
 
         $(".search_toggle").on("click", function() {
@@ -599,10 +652,12 @@
                 $('.menu-area').addClass('fixed-top');
                 $('.mobile-menu').addClass('fixed-top');
                 $('.mobile-header').addClass('fixed-top');
+                $('.mobile-search').addClass('fixed-top');
             } else {
                 $('.menu-area').removeClass('fixed-top');
                 $('.mobile-menu').removeClass('fixed-top');
                 $('.mobile-header').removeClass('fixed-top');
+                $('.mobile-search').removeClass('fixed-top');
             }
         });
     </script>

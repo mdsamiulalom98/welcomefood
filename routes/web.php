@@ -64,6 +64,7 @@ Route::group(['namespace' => 'Frontend', 'middleware' => ['ipcheck', 'check_refe
 
     // cart route
     Route::any('cart/store', [ShoppingController::class, 'cart_store'])->name('cart.store');
+    Route::get('cart/data', [ShoppingController::class, 'cart_data'])->name('cart.data');
     Route::get('cart/count', [ShoppingController::class, 'cart_count'])->name('cart.count');
     Route::get('mini/cart', [ShoppingController::class, 'mini_cart'])->name('mini.cart');
     Route::get('cart/summary', [ShoppingController::class, 'cart_summary'])->name('cart.summary');

@@ -7,8 +7,11 @@
             <div class="col-12">
                 <div class="page-title-box">
                     <div class="page-title-right">
-                        <a href="{{ route('admin.order.create') }}" class="btn btn-danger rounded-pill"><i
-                                class="fe-shopping-cart"></i> Add New</a>
+                        @can('order-create')
+                            <a href="{{ route('admin.order.create') }}" class="btn btn-danger rounded-pill">
+                                <i class="fe-shopping-cart"></i>
+                                Add New</a>
+                        @endcan
                     </div>
                     <h4 class="page-title">{{ $order_status->name }} Order ({{ $order_status->orders_count }})</h4>
                 </div>
@@ -52,67 +55,74 @@
                                         <th style="width:2%">
                                             <div class="form-check"><label class="form-check-label"><input type="checkbox"
                                                         class="form-check-input checkall" value=""></label>
-                                                <th style="width:2%">SL</th>
-                                            </div>
-                                            </th>
-                                            <th style="width:8%">Action</th>
-                                            <th style="width:8%">Invoice</th>
-                                            <th style="width:10%">Date</th>
-                                            <th style="width:10%">Name</th>
-                                            <th style="width:10%">Phone</th>
-                                            <th style="width:10%">Amount</th>
-                                            <th style="width:10%">Status</th>
-                                        </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($show_data as $key => $value)
-                                        <tr>
-                                            <td><input type="checkbox" class="checkbox" value="{{ $value->id }}"></td>
-                                            <td>{{ $loop->iteration }}</td>
-                                            <td>
-                                                <div class="button-list custom-btn-list">
-                                                    <a href="{{ route('admin.order.invoice', ['invoice_id' => $value->invoice_id]) }}"
-                                                        title="Invoice"><i class="fe-eye"></i></a>
-                                                    <a href="{{ route('admin.order.process', ['invoice_id' => $value->invoice_id]) }}"
-                                                        title="Process"><i class="fe-settings"></i></a>
-                                                    <a href="{{ route('admin.order.edit', ['invoice_id' => $value->invoice_id]) }}"
-                                                        title="Edit"><i class="fe-edit"></i></a>
-                                                    <form method="post" action="{{ route('admin.order.destroy') }}"
-                                                        class="d-inline">
-                                                        @csrf
-                                                        <input type="hidden" value="{{ $value->id }}" name="id">
-                                                        <button type="submit" title="Delete" class="delete-confirm"><i
-                                                                class="fe-trash-2"></i></button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                            <td>{{ $value->invoice_id }}<br> {{ $value->customer_ip }} <br>
-                                                @if ($value->order_type == 'digital')
-                                                    <i class="fa fa-gift"></i>
-                                                @endif
-                                            </td>
-                                            <td>{{ date('d-m-Y', strtotime($value->updated_at)) }}<br>
-                                                {{ date('h:i:s a', strtotime($value->updated_at)) }}</td>
-                                            <td><strong>{{ $value->shipping ? $value->shipping->name : '' }}</strong>
-                                                <p>{{ $value->shipping ? $value->shipping->address : '' }}</p>
-                                            </td>
-                                            <td>{{ $value->shipping ? $value->shipping->phone : '' }}</td>
-                                            <td>{{ $value->amount }} Tk</td>
-                                            <td>{{ $value->status ? $value->status->name : '' }} <p><button class="btn btn-soft-info rounded-pill waves-effect waves-light btn-xs mt-1">{{$value->order_type}}</button></p></td>
-
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                                        <th style="width:2%">SL</th>
                         </div>
-                        <div class="custom-paginate">
-                            {{ $show_data->links('pagination::bootstrap-4') }}
-                        </div>
-                    </div> <!-- end card body-->
+                        </th>
+                        <th style="width:8%">Action</th>
+                        <th style="width:8%">Invoice</th>
+                        <th style="width:10%">Date</th>
+                        <th style="width:10%">Name</th>
+                        <th style="width:10%">Phone</th>
+                        <th style="width:10%">Amount</th>
+                        <th style="width:10%">Status</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($show_data as $key => $value)
+                                <tr>
+                                    <td><input type="checkbox" class="checkbox" value="{{ $value->id }}"></td>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>
+                                        <div class="button-list custom-btn-list">
+                                            <a href="{{ route('admin.order.invoice', ['invoice_id' => $value->invoice_id]) }}"
+                                                title="Invoice"><i class="fe-eye"></i></a>
+                                            <a href="{{ route('admin.order.process', ['invoice_id' => $value->invoice_id]) }}"
+                                                title="Process"><i class="fe-settings"></i></a>
+                                            @can('order-edit')
+                                                <a href="{{ route('admin.order.edit', ['invoice_id' => $value->invoice_id]) }}"
+                                                    title="Edit"><i class="fe-edit"></i></a>
+                                            @endcan
+                                            @can('order-delete')
+                                                <form method="post" action="{{ route('admin.order.destroy') }}"
+                                                    class="d-inline">
+                                                    @csrf
+                                                    <input type="hidden" value="{{ $value->id }}" name="id">
+                                                    <button type="submit" title="Delete" class="delete-confirm"><i
+                                                            class="fe-trash-2"></i></button>
+                                                </form>
+                                            @endcan
+                                        </div>
+                                    </td>
+                                    <td>{{ $value->invoice_id }}<br> {{ $value->customer_ip }} <br>
+                                        @if ($value->order_type == 'digital')
+                                            <i class="fa fa-gift"></i>
+                                        @endif
+                                    </td>
+                                    <td>{{ date('d-m-Y', strtotime($value->updated_at)) }}<br>
+                                        {{ date('h:i:s a', strtotime($value->updated_at)) }}</td>
+                                    <td><strong>{{ $value->shipping ? $value->shipping->name : '' }}</strong>
+                                        <p>{{ $value->shipping ? $value->shipping->address : '' }}</p>
+                                    </td>
+                                    <td>{{ $value->shipping ? $value->shipping->phone : '' }}</td>
+                                    <td>{{ $value->amount }} Tk</td>
+                                    <td>{{ $value->status ? $value->status->name : '' }} <p><button
+                                                class="btn btn-soft-info rounded-pill waves-effect waves-light btn-xs mt-1">{{ $value->order_type }}</button>
+                                        </p>
+                                    </td>
 
-                </div> <!-- end card -->
-            </div><!-- end col-->
-        </div>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                        </table>
+                    </div>
+                    <div class="custom-paginate">
+                        {{ $show_data->links('pagination::bootstrap-4') }}
+                    </div>
+                </div> <!-- end card body-->
+
+            </div> <!-- end card -->
+        </div><!-- end col-->
+    </div>
     </div>
     <!-- Assign User End -->
     <div class="modal fade" id="asignUser" tabindex="-1">

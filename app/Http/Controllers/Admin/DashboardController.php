@@ -26,12 +26,14 @@ class DashboardController extends Controller
     }
     public function dashboard(Request $request)
     {
+        $user = auth()->user();
+        $roleName = $user->getRoleNames();
         $order_statuses = OrderStatus::where('status', 1)->withCount('orders')->get();
         $total_sale = Order::where('order_status', 3)->sum('amount');
-        $today_order = Order::whereDate('created_at',  Carbon::today())->count();
-        $today_sales = Order::where('order_status', 3)->whereDate('created_at',  Carbon::today())->sum('amount');
+        $today_order = Order::whereDate('created_at', Carbon::today())->count();
+        $today_sales = Order::where('order_status', 3)->whereDate('created_at', Carbon::today())->sum('amount');
         $current_month_sale = Order::where('order_status', 3)->whereMonth('created_at', Carbon::now()->month)->sum('amount');
-        $total_pos = Order::where('order_type','pos')->count();
+        $total_pos = Order::where('order_type', 'pos')->count();
         $total_order = Order::count();
         $current_month_order = Order::whereMonth('created_at', Carbon::now()->month)->count();
         $total_customer = Customer::count();
@@ -52,7 +54,7 @@ class DashboardController extends Controller
         $totals_json = json_encode($totals);
         if ($request->start_date && $request->end_date) {
             $total_order = Order::whereBetween('created_at', [$request->start_date, $request->end_date])->count();
-            $total_pos  = Order::where('order_type','pos')->whereBetween('created_at', [$request->start_date, $request->end_date])->count();
+            $total_pos = Order::where('order_type', 'pos')->whereBetween('created_at', [$request->start_date, $request->end_date])->count();
             $return_amount = Order::where('order_status', '4')->whereBetween('created_at', [$request->start_date, $request->end_date])->sum('amount');
             $total_complete = Order::where('order_status', '3')->whereBetween('created_at', [$request->start_date, $request->end_date])->count();
             $total_process = Order::whereNotIn('order_status', ['1', '2'])->whereBetween('created_at', [$request->start_date, $request->end_date])->count();

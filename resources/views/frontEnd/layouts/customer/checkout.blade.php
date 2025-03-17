@@ -31,7 +31,8 @@
                                 <div class="form-group mb-3">
                                     <input type="text" id="name"
                                         class="form-control @error('name') is-invalid @enderror" name="name"
-                                        value="{{ Auth::guard('customer')->user() ? Auth::guard('customer')->user()->name : old('name') }}" placeholder="Full Name *" required />
+                                        value="{{ Auth::guard('customer')->user() ? Auth::guard('customer')->user()->name : old('name') }}"
+                                        placeholder="Full Name *" required />
                                     @error('name')
                                         <span class="invalid-feedback" role="alert">
                                             <strong>{{ $message }}</strong>
@@ -44,7 +45,8 @@
                                 <div class="form-group mb-3">
                                     <input type="text" minlength="11" id="number" maxlength="11" id="phone"
                                         class="form-control @error('phone') is-invalid @enderror" name="phone"
-                                        value="{{ Auth::guard('customer')->user() ? Auth::guard('customer')->user()->phone : old('phone') }}" placeholder="Mobile Number *" required />
+                                        value="{{ Auth::guard('customer')->user() ? Auth::guard('customer')->user()->phone : old('phone') }}"
+                                        placeholder="Mobile Number *" required />
                                     @error('phone')
                                         <span class="invalid-feedback" role="alert">
                                             <strong>{{ $message }}</strong>
@@ -56,8 +58,10 @@
                             <div class="col-sm-12">
                                 <div class="form-group mb-3">
                                     <input type="address" id="address"
-                                        class="form-control @error('address') is-invalid @enderror"
-                                        name="address" placeholder="Address *" value="{{ Auth::guard('customer')->user() ? Auth::guard('customer')->user()->address : old('address') }}" required />
+                                        class="form-control @error('address') is-invalid @enderror" name="address"
+                                        placeholder="Address *"
+                                        value="{{ Auth::guard('customer')->user() ? Auth::guard('customer')->user()->address : old('address') }}"
+                                        required />
                                     @error('email')
                                         <span class="invalid-feedback" role="alert">
                                             <strong>{{ $message }}</strong>
@@ -72,7 +76,9 @@
                                         required>
                                         <option value="">Delivery Zone</option>
                                         @foreach ($deliveryzones as $key => $value)
-                                            <option value="{{ $value->id }}" @if(Auth::guard('customer')->user()) {{Auth::guard('customer')->user()->zone_id == $value->id ? 'selected' : '' }} @endif >{{ $value->name }}</option>
+                                            <option value="{{ $value->id }}"
+                                                @if (Auth::guard('customer')->user()) {{ Auth::guard('customer')->user()->zone_id == $value->id ? 'selected' : '' }} @endif>
+                                                {{ $value->name }}</option>
                                         @endforeach
                                     </select>
                                     @error('area')
@@ -114,32 +120,16 @@
                         <h4>Your Order Summary</h4>
                     </div>
                     <div class="cart_list">
-                        <div class="order-summery">
-                            <ul>
-                                @foreach (Cart::instance('shopping')->content() as $item)
-                                <li><span>{{$item->qty}} x {{$item->name}}</span><span>{{$item->price * $item->qty}} Tk</span></li>
-                                @endforeach
-                            </ul>
-                        </div>
-                       <div class="mini-cart-summary">
-                            <ul>
-                                <li><span>Subtotal</span><span>{{$subtotal}} Tk</span></li>
-                                <li><span>Delivery Charge</span><span>{{$shipping}} Tk</span></li>
-                                <li><span>Discount</span><span>{{$discount+$coupon}} Tk</span></li>
-                            </ul>
-                        </div>
-                       <div class="summary-total">
-                            <ul>
-                                <li class="d-flex justify-content-between"><span>Total</span><span>{{($subtotal+$shipping) - ($discount+$coupon)}} Tk</span></li>
-                            </ul>
-                        </div>
+                        @include('frontEnd.layouts.partials.cart_summary')
                     </div>
+                </div>
+                <!-- col end -->
             </div>
-            <!-- col end -->
         </div>
     </div>
 </section>
-@endsection @push('script')
+@endsection
+@push('script')
 <script src="{{ asset('public/frontEnd/') }}/js/parsley.min.js"></script>
 <script src="{{ asset('public/frontEnd/') }}/js/form-validation.init.js"></script>
 <script src="{{ asset('public/frontEnd/') }}/js/select2.min.js"></script>

@@ -30,20 +30,20 @@
                             <input type="hidden" value="{{ $edit_data->id }}" name="hidden_id">
                             <div class="col-sm-6">
                                 <div class="form-group mb-3">
-                                    <label for="product_id" class="form-label">Product *</label>
-                                    <select class="form-control select2-multiple @error('product_id') is-invalid @enderror"
-                                        name="product_id" value="{{ old('product_id') }}" data-toggle="select2"
+                                    <label for="food_id" class="form-label">Food *</label>
+                                    <select class="form-control select2-multiple @error('food_id') is-invalid @enderror"
+                                        name="food_id" value="{{ old('food_id') }}" data-toggle="select2"
                                         data-placeholder="Choose ..."required>
                                         <optgroup>
                                             <option value="">Select..</option>
                                             @foreach ($products as $value)
                                                 <option value="{{ $value->id }}"
-                                                    {{ $edit_data->product_id == $value->id ? 'selected' : '' }}>
+                                                    {{ $edit_data->food_id == $value->id ? 'selected' : '' }}>
                                                     {{ $value->name }}</option>
                                             @endforeach
                                         </optgroup>
                                     </select>
-                                    @error('product_id')
+                                    @error('food_id')
                                         <span class="invalid-feedback" role="alert">
                                             <strong>{{ $message }}</strong>
                                         </span>
