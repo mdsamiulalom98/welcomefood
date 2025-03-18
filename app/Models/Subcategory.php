@@ -9,7 +9,7 @@ class Subcategory extends Model
 {
     use HasFactory;
     protected $guarded = [];
-    
+
     public function childcategories() {
         return $this->hasMany(Childcategory::class, 'subcategory_id')->select('id','slug','name','status')->where('status', 1);
     }
@@ -20,6 +20,6 @@ class Subcategory extends Model
     {
         return $this->hasMany(Product::class, 'subcategory_id')->select('id','subcategory_id','status')->where('status', 1);
     }
-    
-    
+
+
 }

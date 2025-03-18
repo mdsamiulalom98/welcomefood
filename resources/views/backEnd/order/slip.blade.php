@@ -8,7 +8,7 @@
         }
 
         .customer-invoice {
-            margin: 0;
+            margin-top: 20px;
         }
 
         .invoice_btn {
@@ -84,7 +84,8 @@
         <div class="container">
             <div class="row">
                 <div class="col-sm-6">
-                    <a href="javascript:window.history.back();" class="no-print"><strong><i class="fe-arrow-left"></i> Back To Order</strong></a>
+                    <a href="javascript:window.history.back();" class="no-print"><strong><i class="fe-arrow-left"></i> Back To
+                            Order</strong></a>
                 </div>
                 <div class="col-sm-6">
                     <button onclick="printFunction()"class="no-print btn btn-xs btn-success waves-effect waves-light"><i

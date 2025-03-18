@@ -19,13 +19,10 @@ use App\Models\Shipping;
 use App\Models\DeliveryZone;
 use App\Models\Payment;
 use App\Models\Food;
-use App\Models\Category;
 use App\Models\User;
-use App\Models\Courierapi;
 use App\Models\Expense;
 use App\Models\ExpenseCategories;
 use App\Models\FoodVariable;
-use App\Models\District;
 
 class OrderController extends Controller
 {
@@ -42,17 +39,19 @@ class OrderController extends Controller
     public function index($slug, Request $request)
     {
         if ($slug == 'pos') {
-            $order_status = (object) [
-                'name' => 'POS Order',
-                'orders_count' => Order::where('order_type', 'pos')->count(),
-            ];
             $show_data = Order::where('order_type', 'pos')->orderBy('id', 'DESC')->with('shipping', 'status');
+
             if (Auth::user()->hasRole('Waiter')) {
                 $show_data = $show_data->where('waiter_id', Auth::user()->id);
             }
+
             if (Auth::user()->hasRole('Chef')) {
                 $show_data = $show_data->where('chef_id', Auth::user()->id);
             }
+            $order_status = (object) [
+                'name' => 'POS Order',
+                'orders_count' => $show_data->count(),
+            ];
             if ($request->keyword) {
                 $show_data = $show_data->where(function ($query) use ($request) {
                     $query->orWhere('invoice_id', 'LIKE', '%' . $request->keyword . '%')
@@ -63,7 +62,18 @@ class OrderController extends Controller
             }
             $show_data = $show_data->paginate(50);
         } else {
-            $order_status = OrderStatus::where('slug', $slug)->withCount('orders')->first();
+            $order_status = OrderStatus::where('slug', $slug)
+                ->withCount([
+                    'orders' => function ($query) {
+                        if (Auth::user()->hasRole('Waiter')) {
+                            $query->where('waiter_id', Auth::user()->id);
+                        }
+                        if (Auth::user()->hasRole('Chef')) {
+                            $query->where('chef_id', Auth::user()->id);
+                        }
+                    }
+                ])
+                ->first();
             $show_data = Order::where(['order_status' => $order_status->id])->latest()->with('shipping', 'status');
             if (Auth::user()->hasRole('Waiter')) {
                 $show_data = $show_data->where('waiter_id', Auth::user()->id);
@@ -442,7 +452,7 @@ class OrderController extends Controller
             return redirect()->back();
         }
 
-        if(Auth::user()->hasRole('Waiter')){
+        if (Auth::user()->hasRole('Waiter')) {
             $order = Order::where('id', $request->order_id)->first();
             $order->chef_id = $request->chef_id;
             $order->waiter_id = Auth::user()->id;

@@ -71,7 +71,7 @@
         var qty = $(this).val();
         if(id){
               $.ajax({
-               cache: false, 
+               cache: false,
                type:"GET",
                data:{'id':id,'qty':qty},
                url:"{{route('admin.order.cart_decrement')}}",
@@ -128,7 +128,7 @@
         $.ajax({
             type: "GET",
             data: { id: id },
-            url: "{{route('admin.order.cart_shipping')}}",
+            url: "{{route('admin.order.cart_shipping')}}", 
             dataType: "html",
             success: function(cartinfo){
             //   return cart_content()+cart_details();
