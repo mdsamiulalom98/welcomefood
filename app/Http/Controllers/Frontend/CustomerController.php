@@ -369,7 +369,7 @@ class CustomerController extends Controller
         }
         // order data save
         $order                   = new Order();
-        $order->invoice_id       = rand(11111, 99999);
+        $order->invoice_id       = $this->generateInvoiceId();
         $order->amount           = ($subtotal + $deliveryzone->amount) - $discount;
         $order->discount         = $discount ? $discount : 0;
         $order->shipping_charge  = $deliveryzone->amount;
@@ -547,5 +547,11 @@ class CustomerController extends Controller
             Toastr::error('Failed', 'Old password not match!');
             return redirect()->back();
         }
+    }
+    public static function generateInvoiceId()
+    {
+        $lastInvoice = DB::table('orders')->latest('invoice_id')->first();
+        $nextNumber = $lastInvoice ? ((int) $lastInvoice->invoice_id + 1) : 1;
+        return str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
     }
 }

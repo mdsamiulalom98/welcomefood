@@ -177,7 +177,7 @@
                                     </div>
                                     <!-- col-end -->
                                 </div>
-                                @if (Auth::user()->hasRole('Waiter'))
+                                @if (Auth::user()->hasAnyRole(['Waiter', 'Admin']))
                                 <div class="row mb-2">
                                     <div class="col-sm-12">
                                         <div class="form-group">
@@ -203,12 +203,11 @@
                                 <table class="table table-bordered">
                                     <tbody id="cart_details">
                                         @php
-                                            $subtotal = Cart::instance('sale')->subtotal();
+                                            $subtotal = Gloudemans\Shoppingcart\Facades\Cart::instance('sale')->subtotal();
                                             $subtotal = str_replace(',', '', $subtotal);
                                             $subtotal = str_replace('.00', '', $subtotal);
                                             $shipping = Session::get('pos_shipping');
-                                            $total_discount =
-                                                Session::get('pos_discount') + Session::get('product_discount');
+                                            $total_discount = Session::get('pos_discount') + Session::get('product_discount');
                                         @endphp
                                         <tr>
                                             <td>Sub Total</td>

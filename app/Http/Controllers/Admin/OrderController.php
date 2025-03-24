@@ -23,7 +23,7 @@ use App\Models\User;
 use App\Models\Expense;
 use App\Models\ExpenseCategories;
 use App\Models\FoodVariable;
-
+use Carbon\Carbon;
 class OrderController extends Controller
 {
     function __construct()
@@ -84,7 +84,17 @@ class OrderController extends Controller
 
             $show_data = $show_data->paginate(50);
         }
-        $users = User::get();
+        $rolePriority = [
+            'Waiter' => 1,
+            'Chef' => 2,
+        ];
+
+        $users = User::with('roles')->get()->filter(function ($user) {
+            return !$user->roles->pluck('name')->contains('Admin');
+        })->sortBy(function ($user) use ($rolePriority) {
+            $userRole = $user->roles->pluck('name')->first();
+            return $rolePriority[$userRole] ?? PHP_INT_MAX;
+        });
         return view('backEnd.order.index', compact('show_data', 'order_status', 'users'));
     }
 
@@ -123,23 +133,47 @@ class OrderController extends Controller
     }
     public function destroy(Request $request)
     {
-        $order = Order::where('id', $request->id)->delete();
-        $order_details = OrderDetails::where('order_id', $request->id)->delete();
-        $shipping = Shipping::where('order_id', $request->id)->delete();
-        $payment = Payment::where('order_id', $request->id)->delete();
+        Order::where('id', $request->id)->delete();
+        OrderDetails::where('order_id', $request->id)->delete();
+        Shipping::where('order_id', $request->id)->delete();
+        Payment::where('order_id', $request->id)->delete();
         Toastr::success('Success', 'Order delete success successfully');
         return redirect()->back();
     }
 
     public function order_assign(Request $request)
     {
-        $foods = Order::whereIn('id', $request->input('order_ids'))->update(['user_id' => $request->user_id]);
+        // Find the user by ID
+        $user = User::find($request->user_id);
+
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        if ($user->hasRole('Chef')) {
+            Order::whereIn('id', $request->input('order_ids'))->update(['chef_id' => $request->user_id]);
+        }
+
+        if ($user->hasRole('Waiter')) {
+            Order::whereIn('id', $request->input('order_ids'))->update(['waiter_id' => $request->user_id]);
+        }
         return response()->json(['status' => 'success', 'message' => 'Order user id assign']);
     }
 
     public function order_status(Request $request)
     {
-        $orders = Order::whereIn('id', $request->input('order_ids'))->update(['order_status' => $request->order_status]);
+        // return $request->all();
+        $orders = Order::whereIn('id', $request->input('order_ids'))->get();
+        foreach($orders as $order){
+            if($request->process_time){
+                $process_at =  Carbon::now()->addMinutes((int)$request->process_time);
+            }else{
+                $process_at = NULL;
+            }
+            $order->order_status = $request->order_status;
+            $order->process_at = $process_at;
+            $order->save();
+        }
         return response()->json(['status' => 'success', 'message' => 'Order status change successfully']);
     }
 
@@ -230,12 +264,13 @@ class OrderController extends Controller
 
         // order data save
         $order = new Order();
-        $order->invoice_id = rand(11111, 99999);
+        $order->invoice_id = $this->generateInvoiceId();;
         $order->amount = ($subtotal + $deliveryzone->amount) - $discount;
         $order->discount = $discount ? $discount : 0;
         $order->shipping_charge = $deliveryzone->amount;
         $order->customer_id = $customer_id;
         $order->order_status = $deliveryzone->only_pos == 1 ? '3' : '1';
+        $order->chef_id = $request->chef_id;
         $order->user_id = Auth::user()->id;
         $order->order_type = $deliveryzone->only_pos == 1 ? 'pos' : 'website';
         $order->save();
@@ -607,5 +642,11 @@ class OrderController extends Controller
         }
 
         return view('backEnd.reports.loss_profit', compact('total_expense', 'total_purchase', 'total_sales'));
+    }
+    public static function generateInvoiceId()
+    {
+        $lastInvoice = DB::table('orders')->latest('invoice_id')->first();
+        $nextNumber = $lastInvoice ? ((int) $lastInvoice->invoice_id + 1) : 1;
+        return str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
     }
 }

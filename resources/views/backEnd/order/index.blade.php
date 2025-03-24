@@ -31,12 +31,9 @@
                                     <li><a data-bs-toggle="modal" data-bs-target="#changeStatus"
                                             class="btn rounded-pill btn-primary"><i class="fe-plus"></i> Change Status</a>
                                     </li>
-                                    <li><a href="{{ route('admin.order.bulk_destroy') }}"
-                                            class="btn rounded-pill btn-danger order_delete"><i class="fe-plus"></i> Delete
-                                            All</a></li>
-                                    <li><a href="{{ route('admin.order.order_print') }}"
-                                            class="btn rounded-pill btn-info multi_order_print"><i class="fe-printer"></i>
-                                            Print</a></li>
+                                    <!--<li><a href="{{ route('admin.order.order_print') }}"-->
+                                    <!--        class="btn rounded-pill btn-info multi_order_print"><i class="fe-printer"></i>-->
+                                    <!--        Print</a></li>-->
                                 </ul>
                             </div>
                             <div class="col-sm-4">
@@ -78,8 +75,6 @@
                                                 <div class="button-list custom-btn-list">
                                                     <a href="{{ route('admin.order.invoice', ['invoice_id' => $value->invoice_id]) }}"
                                                         title="Invoice"><i class="fe-eye"></i></a>
-                                                    <a href="{{ route('admin.order.process', ['invoice_id' => $value->invoice_id]) }}"
-                                                        title="Process"><i class="fe-settings"></i></a>
                                                     @can('order-edit')
                                                         <a href="{{ route('admin.order.edit', ['invoice_id' => $value->invoice_id]) }}"
                                                             title="Edit"><i class="fe-edit"></i></a>
@@ -95,19 +90,17 @@
                                                     @endcan
                                                 </div>
                                             </td>
-                                            <td>{{ $value->invoice_id }}<br> {{ $value->customer_ip }} <br>
-                                                @if ($value->order_type == 'digital')
-                                                    <i class="fa fa-gift"></i>
-                                                @endif
+                                            <td>{{ $value->invoice_id }}<br> {{ $value->customer_ip }} 
+                                                
                                             </td>
-                                            <td>{{ date('d-m-Y', strtotime($value->updated_at)) }}<br>
-                                                {{ date('h:i:s a', strtotime($value->updated_at)) }}</td>
+                                            <td>{{ date('d-m-Y', strtotime($value->created_at)) }}<br>
+                                                {{ date('h:i:s a', strtotime($value->created_at)) }}</td>
                                             <td><strong>{{ $value->shipping ? $value->shipping->name : '' }}</strong>
                                                 <p>{{ $value->shipping ? $value->shipping->address : '' }}</p>
                                             </td>
                                             <td>{{ $value->shipping ? $value->shipping->phone : '' }}</td>
                                             <td>{{ $value->amount }} Tk</td>
-                                            <td>{{ $value->status ? $value->status->name : '' }} <p><button
+                                            <td>{{ $value->status ? $value->status->name : '' }} @if($value->order_status == 2)  ({{ date('h:i:s a', strtotime($value->process_at)) }}) @endif<p><button
                                                         class="btn btn-soft-info rounded-pill waves-effect waves-light btn-xs mt-1">{{ $value->order_type }}</button>
                                                 </p>
                                             </td>
@@ -137,7 +130,7 @@
                 <form action="{{ route('admin.order.assign') }}" id="order_assign">
                     <div class="modal-body">
                         <div class="form-group">
-                            <select name="user_id" id="user_id" class="form-control">
+                            <select name="user_id" id="user_id" class="form-control form-select">
                                 <option value="">Select..</option>
                                 @foreach ($users as $key => $value)
                                     <option value="{{ $value->id }}">{{ $value->name }}</option>
@@ -172,6 +165,10 @@
                                     <option value="{{ $value->id }}">{{ $value->name }}</option>
                                 @endforeach
                             </select>
+                        </div>
+                         <div class="form-group mt-3" id="process_time_field" style="display: none;">
+                            <label for="process_time" class="mb-1">Process Time (Minute)</label>
+                            <input type="number" min="1" name="process_time" id="process_time" class="form-control">
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -233,6 +230,7 @@
                 var url = $(this).attr('action');
                 var method = $(this).attr('method');
                 let order_status = $(document).find('select#order_status').val();
+                let process_time = $('#process_time').val();
 
                 var order = $('input.checkbox:checked').map(function() {
                     return $(this).val();
@@ -249,6 +247,7 @@
                     url: url,
                     data: {
                         order_status,
+                        process_time,
                         order_ids
                     },
                     success: function(res) {
@@ -359,5 +358,17 @@
 
             });
         })
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('#order_status').change(function() {
+                var selectedStatus = $(this).val();
+                if (selectedStatus == '2') {
+                    $('#process_time_field').show();
+                } else {
+                    $('#process_time_field').hide();
+                }
+            });
+        });
     </script>
 @endsection

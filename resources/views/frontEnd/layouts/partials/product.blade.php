@@ -38,11 +38,11 @@
         <div class="pro_btn">
             @if ($value->variable_count > 1)
             <div class="cart_btn">
-               <a class="quick_view" data-id="{{ $value->id }}" data-bs-toggle="modal" data-bs-target="#quickview_modal"><i class="fa-solid fa-shopping-cart"></i> Add To Cart</a>
+               <a class="quick_view" data-id="{{ $value->id }}" data-bs-toggle="modal" data-bs-target="#quickview_modal"><i class="fa-solid fa-shopping-cart"></i> Order Now</a>
             </div>
             @else
             <div class="cart_btn">
-                <button  data-id="{{ $value->id }}" class="cart_store"><i class="fa-solid fa-shopping-cart"></i> Add To Cart</button>
+                <button  data-id="{{ $value->id }}" class="cart_store"><i class="fa-solid fa-shopping-cart"></i>  Order Now</button>
             </div>
             @endif
         </div>

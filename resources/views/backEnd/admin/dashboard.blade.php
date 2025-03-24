@@ -179,7 +179,7 @@
             </div> <!-- end col-->
         </div>
         <!-- end row-->
-
+        @role('Admin')
         <div class="row">
             <div class="col-sm-12">
                 <div class="card">
@@ -190,7 +190,7 @@
                 </div>
             </div>
         </div>
-
+        
         <div class="row">
             <div class="col-md-6 col-xl-3">
                 <div class="widget-rounded-circle card bg-blue">
@@ -230,90 +230,8 @@
             @endforeach
 
         </div>
-
-         <div class="row">
-        <div class="col-sm-12 text-start">
-            <form class="no-print mb-2">
-                <div class="row">
-                    <div class="col-sm-4">
-                        <div class="form-group">
-                           <label for="start_date" class="form-label">Start Date</label>
-                            <input type="date" value="{{request()->get('start_date')}}"  class="form-control flatdate" name="start_date">
-                        </div>
-                    </div>
-                    <!--col-sm-3-->
-                    <div class="col-sm-4">
-                        <div class="form-group">
-                           <label for="end_date" class="form-label">End Date</label>
-                            <input type="date" value="{{request()->get('end_date')}}" class="form-control flatdate" name="end_date">
-                        </div>
-                    </div>
-                    <!--col-sm-3-->
-                    <div class="col-sm-4 text-start">
-                        <div class="form-group mt-3">
-                            <button class="btn btn-primary">Submit</button>
-                        </div>
-                    </div>
-                    <!-- col end -->
-                </div>
-            </form>
-        </div>
-    </div>
-    <!--graph chart start -->
-    <div class="graph-pie">
-        <div class="row">
-            <div class="col-sm-3 main-Pie">
-                   <div id="chartContainer" style="height: 200px; width: 100%;"></div>
-                <a href="{{route('admin.orders','all')}}">
-                <div class="inner-chart">
-                    <h5>total value</h5>
-                    <h3> ৳ {{ number_format($total_amount)}}</h3>
-                    <p>{{$total_order}} Orders</p>
-                </div>
-                </a>
-            </div>
-            <!--end-col-->
-            <div class="col-sm-9">
-                <div class="chart-des">
-                    <!--new-row-start-->
-                    <div class="row">
-                        <div class="col-sm-4">
-                          <a href="{{route('admin.orders','completed')}}">
-                            <div class="des-item" style="border-left:6px solid #21c624; padding-left:20px;">
-                                <h5>Delivered</h5>
-                                <h2>@if($total_complete > 0) {{number_format(($total_complete*100)/$total_order,2)}} @else 0 @endif%</h2>
-                                <h5>{{$total_complete}} orders | {{$delivery_amount}} Tk</h5>
-                            </div>
-                            </a>
-                        </div>
-                        <!--end-col-->
-                        <div class="col-sm-4">
-                          <a href="{{route('admin.orders','in-courier')}}">
-                            <div class="des-item" style="border-left:6px solid #ffcd00; padding-left:20px;">
-                                <h5>Delivery Processing</h5>
-                                <h2>@if($total_process > 0) {{number_format(($total_process*100)/$total_order,2)}} @else 0 @endif%</h2>
-                                <h5>{{$total_process}} orders |  {{$process_amount}} Tk</h5>
-                            </div>
-                           </a>
-                        </div>
-                        <!--end-col-->
-                        <div class="col-sm-4">
-                          <a href="{{route('admin.orders','returned')}}">
-                            <div class="des-item" style="border-left:6px solid #ff4c49;padding-left:20px;">
-                                <h5>Returned</h5>
-                                <h2>@if($total_return > 0) {{number_format(($total_return*100)/$total_order,2)}} @else 0 @endif%</h2>
-                                <h5>{{$total_return}} orders |  {{$return_amount}} Tk</h5>
-                            </div>
-                          </a>
-                        </div>
-                        <!--end-col-->
-                    </div>
-                    <!--new-row-end-->
-                </div>
-            </div>
-            <!--end-col-->
-        </div>
-        <!--end-row-->
+         @endrole
+        
     </div>
 
     <!--graph chart end -->

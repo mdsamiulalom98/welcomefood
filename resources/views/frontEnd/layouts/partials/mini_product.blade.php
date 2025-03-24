@@ -11,8 +11,14 @@
     <div class="menu-info">
         <a class="quick_view" data-id="{{ $value->id }}" data-bs-toggle="modal"
             data-bs-target="#quickview_modal">{{ $value->name }}</a>
+        @if ($value->variables->count() > 1)
+        <button class="order-now-button quick_view" data-id="{{ $value->id }}" data-bs-toggle="modal"
+            data-bs-target="#quickview_modal">Order
+            Now</button>
+        @else
         <button class="cart_store order-now-button" data-redirect="order_now" data-id="{{ $value->id }}">Order
             Now</button>
+        @endif
     </div>
     <div class="menu-price quick_view" data-id="{{ $value->id }}" data-bs-toggle="modal" data-bs-target="#quickview_modal">
         @if ($value->variables->count() > 1)

@@ -77,10 +77,13 @@
             .navbar-custom {
                 display: none !important;
             }
+            /*
+            style="background-image: url('https://forum.sambapos.com/uploads/default/optimized/3X/0/b/0b694ddb196f635bd4cfe2c3305bbfac26c45771_2_690x920.jpeg');background-repeat: no-repeat; background-size: 60%;background-position: left"
+             */
         }
     </style>
 
-    <section class="customer-invoice ">
+    <section class="customer-invoice " >
         <div class="container">
             <div class="row">
                 <div class="col-sm-6">
@@ -93,7 +96,10 @@
                 </div>
                 <div class="pos__prints mt-3">
                     <div class="invoice-innter"
-                        style="width:75mm;height:100mm;margin: 0 auto;background: #fff;overflow: hidden;padding:2px;">
+                        style="width:75mm;height:100mm;margin: 0 auto;background: #fff;overflow: hidden;padding:2px 8px;">
+                        <div>
+                            <img style=" height: 40px; width: auto; margin: 0 auto; display: block; " src="{{ asset($generalsetting->white_logo) }}" alt="">
+                        </div>
                         <table style="width:100%; border:1px dashed;margin-top: 2px;">
                             <tr>
                                 <td>
@@ -140,48 +146,47 @@
                         </table>
 
                         <table style="width: 100%;padding-top: 0px;">
-                            <thead style="">
-                                <tr>
-                                    <th style="font-size:11px !important;font-weight:400;color:#000">Name</th>
-                                    <th style="font-size:11px !important;font-weight:400;color:#000">Qty</th>
-                                    <th style="font-size:11px !important;font-weight:400;color:#000">Price</th>
+                            <thead >
+                                <tr style="border-bottom: 1px dashed">
+                                    <th style="font-size:11px !important;font-weight:400;color:#000; padding: 6px 0;">Qty</th>
+                                    <th style="font-size:11px !important;font-weight:400;color:#000; padding: 6px 0;">Item Description</th>
+                                    <th style="font-size:11px !important;font-weight:400;color:#000; text-align: right; padding: 6px 0;">Price</th>
                                 </tr>
                             </thead>
                             <tbody style="border-bottom: 1px dashed">
                                 @foreach ($order->orderdetails as $key => $value)
                                     <tr>
+                                        <td style="font-size:11px !important;font-weight:400;color:#000">{{ $value->qty }}x </td>
                                         <td style="font-size:11px !important;font-weight:400;color:#000">
-                                            {{ Str::limit($value->product_name, 25) }}</td>
-                                        <td style="font-size:11px !important;font-weight:400;color:#000">{{ $value->qty }}
-                                        </td>
-                                        <td style="font-size:11px !important;font-weight:400;color:#000">
+                                            {{ Str::limit($value->food_name, 25) }}</td>
+                                        <td style="font-size:11px !important;font-weight:400;color:#000;text-align: right;">
                                             ৳{{ $value->sale_price }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
                             <tfoot>
-                                <tr>
-                                    <td style="font-size:11px !important;font-weight:400;color:#000" colspan="2">Subtotal
-                                    </td>
-                                    <td style="font-size:11px !important;font-weight:400;color:#000">
+                                <tr style="border-bottom: 1px dashed;">
+                                    <th style="font-size:13px !important;color:#000; padding: 8px 0;" colspan="2">Subtotal
+                                    </th>
+                                    <td style="font-size:11px !important;font-weight:400;color:#000; text-align: right; padding: 8px 0;">
                                         ৳{{ $order->amount + $order->discount - $order->shipping_charge }}</td>
                                 </tr>
                                 <tr>
                                     <td style="font-size:11px !important;font-weight:400;color:#000" colspan="2">
                                         Shipping(+)</td>
-                                    <td style="font-size:11px !important;font-weight:400;color:#000">
+                                    <td style="font-size:11px !important;font-weight:400;color:#000; text-align: right;">
                                         ৳{{ $order->shipping_charge }}</td>
                                 </tr>
                                 <tr>
                                     <td style="font-size:11px !important;font-weight:400;color:#000" colspan="2">
                                         Discount(-)</td>
-                                    <td style="font-size:11px !important;font-weight:400;color:#000">
+                                    <td style="font-size:11px !important;font-weight:400;color:#000; text-align: right;">
                                         ৳{{ $order->discount }}</td>
                                 </tr>
-                                <tr>
-                                    <td style="font-size:11px !important;font-weight:400;color:#000" colspan="2">Final
+                                <tr style="border-top: 1px dashed;">
+                                    <td style="font-size:14px !important;font-weight:600;color:#000;padding: 6px 0;" colspan="2">Final
                                         Total</td>
-                                    <td style="font-size:11px !important;font-weight:400;color:#000">৳{{ $order->amount }}
+                                    <td style="font-size:11px !important;font-weight:400;color:#000; text-align: right;">৳{{ $order->amount }}
                                     </td>
                                 </tr>
                             </tfoot>
@@ -194,7 +199,7 @@
                                     <div>
                                         <p style="border-top: 1px dashed;padding-top: 0px;padding-bottom: 0px">Thank You!
                                         </p>
-                                        <p style="color:#000;">www.thepurelifebd.com</p>
+                                        <p style="color:#000;">www.welcomefood.com</p>
                                     </div>
                                     <div style="width: 130px;overflow:hidden;margin: 0 auto;height:15px;">
                                         <img

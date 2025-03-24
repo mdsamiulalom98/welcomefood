@@ -174,25 +174,26 @@
                                     </div>
                                     <!-- col-end -->
                                 </div>
-                                @if (Auth::user()->hasRole('Waiter'))
-                                <div class="row mb-2">
-                                    <div class="col-sm-12">
-                                        <div class="form-group">
-                                            <label for="chef_id" class="form-label">Assign Chef</label>
-                                            <select
-                                                class="form-control form-select @error('chef_id') is-invalid @enderror"
-                                                name="chef_id" value="{{ old('chef_id') }}"
-                                                data-placeholder="Choose ..." required>
-                                                <optgroup>
-                                                    <option value="">Select..</option>
-                                                    @foreach ($chefs as $value)
-                                                        <option value="{{ $value->id }}">{{ $value->name }}</option>
-                                                    @endforeach
-                                                </optgroup>
-                                            </select>
+                                @if (Auth::user()->hasAnyRole(['Waiter', 'Admin']))
+                                    <div class="row mb-2">
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <label for="chef_id" class="form-label">Assign Chef</label>
+                                                <select
+                                                    class="form-control form-select @error('chef_id') is-invalid @enderror"
+                                                    name="chef_id" value="{{ old('chef_id') }}"
+                                                    data-placeholder="Choose ..." required>
+                                                    <optgroup>
+                                                        <option value="">Select..</option>
+                                                        @foreach ($chefs as $value)
+                                                            <option value="{{ $value->id }}">{{ $value->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </optgroup>
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
                                 @endif
                             </div>
                             <!-- end customer address -->
@@ -201,16 +202,12 @@
                                 <table class="table table-bordered">
                                     <tbody id="cart_details">
                                         @php
-                                            $subtotal = Cart::instance('sale')->subtotal();
+                                            $subtotal = Gloudemans\Shoppingcart\Facades\Cart::instance('sale')->subtotal();
                                             $subtotal = str_replace(',', '', $subtotal);
                                             $subtotal = str_replace('.00', '', $subtotal);
-                                            $shipping = Session::get('pos_shipping') ? Session::get('pos_shipping') : 0;
-                                            $pos_discount = Session::get('pos_discount')
-                                                ? Session::get('pos_discount')
-                                                : 0;
-                                            $product_discount = Session::get('product_discount')
-                                                ? Session::get('product_discount')
-                                                : 0;
+                                            $shipping = Session::get('pos_shipping') ?: 0;
+                                            $pos_discount = Session::get('pos_discount') ?: 0;
+                                            $product_discount = Session::get('product_discount') ?: 0;
                                             $total_discount = $pos_discount + $product_discount;
                                         @endphp
                                         <tr>

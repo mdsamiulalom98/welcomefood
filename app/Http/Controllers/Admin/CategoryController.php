@@ -138,25 +138,6 @@ class CategoryController extends Controller
             File::delete($subcategory->image);
             $subcategory->delete();
         }
-        foreach ($category->products ?? [] as $product) {
-            foreach ($product->variables ?? [] as $variable) {
-                File::delete($variable->image);
-                $variable->delete();
-            }
-            foreach ($product->images ?? [] as $image) {
-                File::delete($image->image);
-                $image->delete();
-            }
-            foreach ($product->reviews ?? [] as $review) {
-                $review->delete();
-            }
-            foreach ($product->campaigns ?? [] as $campaign) {
-                File::delete($product->banner);
-                $campaign->delete();
-            }
-            File::delete($product->image);
-            $product->delete();
-        }
         File::delete($category->image);
         $category->delete();
         Toastr::success('Success','Data delete successfully');

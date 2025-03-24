@@ -126,14 +126,19 @@ class FoodController extends Controller
             'description' => 'required',
         ]);
 
+       
+        
         $update_data = Food::find($request->id);
         $input = $request->except(['image', 'files', 'sizes', 'cost_prices', 'old_prices', 'new_prices', 'images', 'up_id', 'up_sizes', 'up_cost_prices', 'up_old_prices', 'up_new_prices', 'up_images', 'pro_barcodes', 'up_pro_barcodes']);
-
+        // return $request->up_id;
        
         $last_id = Food::orderBy('id', 'desc')->select('id')->first();
         $input['slug'] = strtolower(preg_replace('/[\/\s]+/', '-', $request->name . '-' . $update_data->id));
         $input['status'] = $request->status ? 1 : 0;
         $input['topsale'] = $request->topsale ? 1 : 0;
+        $input['cost_price'] = $request->up_cost_prices[0];
+        $input['old_price'] = $request->up_old_prices[0];
+        $input['new_price'] = $request->up_new_prices[0];
         $update_data->update($input);
 
         $images = $request->file('image');
